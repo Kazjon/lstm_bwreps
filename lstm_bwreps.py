@@ -137,7 +137,7 @@ for iteration in range(1, 50):
 		for t, char in enumerate(sentence):
 			x[0, t, char] = 1.
 		preds = model.predict(x,verbose=1)
-		sys.stdout.write("Predicting: "+", ".join([indices_chars[p] for p in preds])
+		sys.stdout.write("Predicting: "+", ".join([indices_char[p] for p in preds]))
 
 		sys.stdout.flush()
 		'''
