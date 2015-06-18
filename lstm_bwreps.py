@@ -1,6 +1,6 @@
 from __future__ import print_function
 from keras.models import Sequential
-from keras.layers.core import Dense, Activation
+from keras.layers.core import TimeDistributedDense
 from keras.layers.recurrent import LSTM
 from keras.datasets.data_utils import get_file
 import numpy as np
@@ -53,10 +53,8 @@ print('#games:', len(games))
 ###This code trains on each game as its own sequence, padding with GAMEOVER() characters to equalise game lengths.
 maxlen = max(gamelens)
 sentences = []
-next_chars = []
 for g in games:
-	sentences.append(g+(char_indices["GAMEOVER()"] * (maxlen-len(g))))
-	next_chars.append[sentences[-1][1:]]
+	sentences.append(g+([char_indices["GAMEOVER()"]] * (maxlen-len(g))))
 print('#sequences:', len(sentences))
 
 print('Vectorization...')
