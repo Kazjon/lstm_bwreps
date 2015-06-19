@@ -1,6 +1,6 @@
 from __future__ import print_function
 from keras.models import Sequential
-from keras.layers.core import TimeDistributedDense
+from keras.layers.core import TimeDistributedDense, Dropout
 from keras.layers.recurrent import LSTM
 from keras.datasets.data_utils import get_file
 import numpy as np
@@ -104,10 +104,11 @@ for i, sentence in enumerate(sentences):
 print('Build model...')
 model = Sequential()
 model.add(LSTM(len(chars), 512, return_sequences=True))
+model.add(Dropout(0.5))
 model.add(LSTM(512, 512, return_sequences=True))
 model.add(TimeDistributedDense(512, len(chars), activation='time_distributed_softmax'))
 
-model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
+model.compile(loss='binary_crossentropy', optimizer='rmsprop')
 
 # train the model, output generated text after each epoch
 for iteration in range(1, 50):
