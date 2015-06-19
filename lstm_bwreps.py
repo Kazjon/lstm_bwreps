@@ -107,7 +107,7 @@ for iteration in range(1, 50):
 	print('Iteration', iteration)
 	model.fit(X, y, batch_size=128, nb_epoch=1)
 
-	seed_game = random.randint(0,len(games))
+	seed_game = np.random.randint(0,len(games))
 	###start_index = random.randint(0, len(text) - maxlen - 1)
 
 	for diversity in [0.4, 0.7, 1.]:
@@ -116,21 +116,25 @@ for iteration in range(1, 50):
 
 		generated = []
 		sentence = games[seed_game][0:min(len(games[seed_game]),maxlen)]
-		sentence += [char_indices["GAMEOVER()"]] * (maxlen-len(seed_game))
+		sentence += [char_indices["GAMEOVER()"]] * (maxlen-len(games[seed_game]))
 		###sentence = text[start_index : start_index + maxlen]
 		#print(sentence)
 		generated += [indices_char[s] for s in sentence]
-		if len(seed_game) < maxlen:
+		if len(games[seed_game]) < maxlen:
 			generated = generated[:generated.index("GAMEOVER()")+1]
 		print('----- Generating with seed: "' + ", ".join(generated) + '"')
 
 		x = np.zeros((1, maxlen, len(chars)))
 		for t, char in enumerate(sentence):
 			x[0, t, char] = 1.
-		preds = model.predict(x,verbose=1)
-		if char_indices["GAMEOVER()"] in preds:
-			preds = preds[:preds.index(char_indices["GAMEOVER()"])+1]
-		sys.stdout.write("Predicted: "+", ".join([indices_char[p] for p in preds]))
+		preds = model.predict(x,verbose=1)[0]
+		for pred in preds:
+			print (pred.shape)
+		samples = [sample(pred,diversity) for pred in preds]
+		#preds = [np.random.randint(0,len(chars)) for i in range(maxlen)]
+		if char_indices["GAMEOVER()"] in samples:
+			samples = samples[:samples.index(char_indices["GAMEOVER()"])+1]
+		sys.stdout.write("Predicted: "+", ".join([indices_char[p] for p in samples]))
 		sys.stdout.flush()
 		'''
 		for iteration in range(400):
