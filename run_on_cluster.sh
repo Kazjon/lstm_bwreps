@@ -34,6 +34,5 @@ SHORT_JOBID=`echo $PBS_JOBID |cut -d. -f1`
 exec 1>$PBS_O_WORKDIR/$PBS_JOBNAME-$SHORT_JOBID.out  2>$PBS_O_WORKDIR/$PBS_JOBNAME-$SHORT_JOBID.err
 
 ### run job
-module unload python
-cd keras_test
+cd lstm_bwreps
 python lstm_bwreps.py
