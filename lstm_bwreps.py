@@ -50,12 +50,17 @@ for i in range(0,len(text)):
 		gamestart = i+1
 print('#games:', len(games))
 
-###This code trains on each game as its own sequence, padding with GAMEOVER() characters to equalise game lengths.
+###This code trains on each game as its own sequence, padding with GAMEOVER() characters to equalise game lengths. -- out of memory error.
+'''
 maxlen = max(gamelens)
+print(maxlen)
+print(gamelens)
+sys.exit()
 sentences = []
 for g in games:
 	sentences.append(g+([char_indices["GAMEOVER()"]] * (maxlen-len(g))))
 print('#sequences:', len(sentences))
+
 
 print('Vectorization...')
 X = np.zeros((len(sentences), maxlen, len(chars)))
@@ -65,39 +70,23 @@ for i, sentence in enumerate(sentences):
 		X[i, t, char] = 1.
 	y[i, :-1, :] = X[i, 1:, :]
 	y[i, maxlen-1,char_indices["GAMEOVER()"]] = 1
-
-###This code redundantly subsamples each game into length maxlen sequences
-#maxlen = 30
-#step = 3
-#sentences = []
-#next_chars = []
-#for g in games:
-#	for i in range(0,len(g)-maxlen, step):
-#		sentences.append(g[i:i+maxlen])
-#		next_chars.append(g[i+maxlen])
-#print('#sequences:', len(sentences))
-
 '''
-# cut the text in semi-redundant sequences of 30 characters
-
-maxlen = 30
-step = 5
+###This code redundantly subsamples each game into length maxlen sequences
+maxlen = 100
+step = 10
 sentences = []
-next_chars = []
-for i in range(0, len(text) - maxlen, step):
-	sentences.append(text[i : i + maxlen])
-	next_chars.append(text[i + maxlen])
-print('nb sequences:', len(sentences))
+for g in games:
+	for i in range(0,len(g)-maxlen, step):
+		sentences.append(g[i:i+maxlen])
+print('#sequences:', len(sentences))
 
-print('Vectorization...')
 X = np.zeros((len(sentences), maxlen, len(chars)))
-y = np.zeros((len(sentences), len(chars)))
+y = np.zeros((len(sentences), maxlen, len(chars)))
 for i, sentence in enumerate(sentences):
 	for t, char in enumerate(sentence):
 		X[i, t, char] = 1.
-	y[i, next_chars[i]] = 1.
-'''
-
+	y[i, :-1, :] = X[i, 1:, :]
+	y[i, maxlen-1,char_indices["GAMEOVER()"]] = 1
 	
 
 # build the model: 2 stacked LSTM
@@ -126,19 +115,22 @@ for iteration in range(1, 50):
 		print('----- diversity:', diversity)
 
 		generated = []
-		sentence = games[seed_game][0:maxlen]
+		sentence = games[seed_game][0:min(len(seed_game,maxlen))]
+		sentence += [char_indices["GAMEOVER()"]] * (maxlen-len(seed_game))
 		###sentence = text[start_index : start_index + maxlen]
 		#print(sentence)
 		generated += [indices_char[s] for s in sentence]
-		generated = generated[:generated.index("GAMEOVER()")+1]
+		if len(seed_game) < maxlen:
+			generated = generated[:generated.index("GAMEOVER()")+1]
 		print('----- Generating with seed: "' + ", ".join(generated) + '"')
 
 		x = np.zeros((1, maxlen, len(chars)))
 		for t, char in enumerate(sentence):
 			x[0, t, char] = 1.
 		preds = model.predict(x,verbose=1)
-		sys.stdout.write("Predicting: "+", ".join([indices_char[p] for p in preds]))
-
+		if char_indices["GAMEOVER()"] in preds:
+			preds = preds[:preds.index(char_indices["GAMEOVER()"])+1]
+		sys.stdout.write("Predicted: "+", ".join([indices_char[p] for p in preds]))
 		sys.stdout.flush()
 		'''
 		for iteration in range(400):
