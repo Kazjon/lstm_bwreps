@@ -110,26 +110,24 @@ for iteration in range(1, 50):
 	seed_game = np.random.randint(0,len(games))
 	###start_index = random.randint(0, len(text) - maxlen - 1)
 
+	generated = []
+	sentence = games[seed_game][0:min(len(games[seed_game]),maxlen)]
+	sentence += [char_indices["GAMEOVER()"]] * (maxlen-len(games[seed_game]))
+	###sentence = text[start_index : start_index + maxlen]
+	#print(sentence)
+	generated += [indices_char[s] for s in sentence]
+	if len(games[seed_game]) < maxlen:
+		generated = generated[:generated.index("GAMEOVER()")+1]
+	print('----- Generating with seed: "' + ", ".join(generated) + '"')
+
+	x = np.zeros((1, maxlen, len(chars)))
+	for t, char in enumerate(sentence):
+		x[0, t, char] = 1.
+	preds = model.predict(x,verbose=1)[0]
+
 	for diversity in [0.4, 0.7, 1.]:
 		print()
 		print('----- diversity:', diversity)
-
-		generated = []
-		sentence = games[seed_game][0:min(len(games[seed_game]),maxlen)]
-		sentence += [char_indices["GAMEOVER()"]] * (maxlen-len(games[seed_game]))
-		###sentence = text[start_index : start_index + maxlen]
-		#print(sentence)
-		generated += [indices_char[s] for s in sentence]
-		if len(games[seed_game]) < maxlen:
-			generated = generated[:generated.index("GAMEOVER()")+1]
-		print('----- Generating with seed: "' + ", ".join(generated) + '"')
-
-		x = np.zeros((1, maxlen, len(chars)))
-		for t, char in enumerate(sentence):
-			x[0, t, char] = 1.
-		preds = model.predict(x,verbose=1)[0]
-		for pred in preds:
-			print (pred.shape)
 		samples = [sample(pred,diversity) for pred in preds]
 		#preds = [np.random.randint(0,len(chars)) for i in range(maxlen)]
 		if char_indices["GAMEOVER()"] in samples:
