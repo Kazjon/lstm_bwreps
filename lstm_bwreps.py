@@ -98,14 +98,14 @@ model.add(LSTM(512, 512, return_sequences=True))
 model.add(TimeDistributedDense(512, len(chars)))
 model.add(Activation('time_distributed_softmax'))
 
-model.compile(loss='binary_crossentropy', optimizer='rmsprop')
+model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
 
 # train the model, output generated text after each epoch
 for iteration in range(1, 50):
 	print()
 	print('-' * 50)
 	print('Iteration', iteration)
-	model.fit(X, y, batch_size=128, nb_epoch=1)
+	model.fit(X, y, batch_size=256, nb_epoch=1)
 
 	seed_game = np.random.randint(0,len(games))
 	###start_index = random.randint(0, len(text) - maxlen - 1)
