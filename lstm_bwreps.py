@@ -115,7 +115,7 @@ for iteration in range(1, 50):
 		print('----- diversity:', diversity)
 
 		generated = []
-		sentence = games[seed_game][0:min(len(seed_game,maxlen))]
+		sentence = games[seed_game][0:min(len(seed_game),maxlen)]
 		sentence += [char_indices["GAMEOVER()"]] * (maxlen-len(seed_game))
 		###sentence = text[start_index : start_index + maxlen]
 		#print(sentence)
