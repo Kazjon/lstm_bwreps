@@ -7,6 +7,8 @@ import numpy as np
 import random, sys
 import cPickle as pickle
 
+subsample = False
+
 # helper function to sample an index from a probability array
 def sample(a, diversity=0.75):
 	if random.random() > diversity:
@@ -71,13 +73,19 @@ for i, sentence in enumerate(sentences):
 	y[i, :-1, :] = X[i, 1:, :]
 	y[i, maxlen-1,char_indices["GAMEOVER()"]] = 1
 '''
-###This code redundantly subsamples each game into length maxlen sequences
-maxlen = 100
-step = 10
-sentences = []
-for g in games:
-	for i in range(0,len(g)-maxlen, step):
-		sentences.append(g[i:i+maxlen])
+
+if subsample:
+	###This code redundantly subsamples each game into length maxlen sequences
+	maxlen = 100
+	step = 10
+	sentences = []
+	for g in games:
+		for i in range(0,len(g)-maxlen, step):
+			sentences.append(g[i:i+maxlen])
+else:
+	maxlen = max(gamelens)
+	sentences = games
+
 print('#sequences:', len(sentences))
 
 X = np.zeros((len(sentences), maxlen, len(chars)))
@@ -95,13 +103,14 @@ model = Sequential()
 model.add(LSTM(len(chars), 512, return_sequences=True))
 model.add(Dropout(0.5))
 model.add(LSTM(512, 512, return_sequences=True))
+model.add(Dropout(0.5))
 model.add(TimeDistributedDense(512, len(chars)))
 model.add(Activation('time_distributed_softmax'))
 
 model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
 
 # train the model, output generated text after each epoch
-for iteration in range(1, 50):
+for iteration in range(1, 1000):
 	print()
 	print('-' * 50)
 	print('Iteration', iteration)

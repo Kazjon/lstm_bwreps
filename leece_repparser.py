@@ -2,11 +2,12 @@ import os,pymongo,sys,itertools,cPickle as pickle
 
 path = "/Users/kazjon/Dropbox/Documents/Research/UNCC/ComputationalCreativity/Datasets/BWReplays/mleece/SimplifiedByRace"
 
-outfile = "parsed_games_noresearch_noupgrades_nostart"
+outfile = "parsed_games_noresearch_noupgrades_nostart_lim100"
 dir1 = "Protoss"
 dir2 = "Terran"
 ext = ".atoms"
 ignore = ["Move","Attack","AttackMove", "Research", "Upgrade"]
+steplimit = 100 # Use 0 for no limit
 
 repstreams = []
 symbols = {}
@@ -51,7 +52,13 @@ for repfile in os.listdir(os.path.join(path,dir1)):
 						except StopIteration:
 							it2done = True
 					repstream.append((int(t1),symbolise(act1)))
-			repstream.append((repstream[-1][0],symbolise("GAMEOVER()")))
+			if steplimit:
+				if len(repstream) > steplimit:
+					repstream = repstream[0:steplimit]
+				else:
+					repstream = repstream + ([symbolise("GAMEOVER()")] * (steplimit - len(repstream)))
+			else:
+				repstream.append((repstream[-1][0],symbolise("GAMEOVER()")))
 				
 			repstreams.append(repstream)
 			print "  --",len(repstream)
