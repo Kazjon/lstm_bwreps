@@ -32,7 +32,7 @@ def sample(a, diversity=0.75):
 	has at least ~100k characters. ~1M is better.
 '''
 
-replays = pickle.load(open("parsed_games.pkl","rb"))
+replays = pickle.load(open("parsed_games_noresearch_noupgrades_nostart_lim100.pkl","rb"))
 print('corpus length:', len(replays["streams"]))
 
 text = list(zip(*replays["streams"])[1])

@@ -56,7 +56,7 @@ for repfile in os.listdir(os.path.join(path,dir1)):
 				if len(repstream) > steplimit:
 					repstream = repstream[0:steplimit]
 				else:
-					repstream = repstream + ([symbolise("GAMEOVER()")] * (steplimit - len(repstream)))
+					repstream = repstream + ([(repstream[-1][0],symbolise("GAMEOVER()"))] * (steplimit - len(repstream)))
 			else:
 				repstream.append((repstream[-1][0],symbolise("GAMEOVER()")))
 				
