@@ -2,11 +2,11 @@ import os,pymongo,sys,itertools,cPickle as pickle
 
 path = "/Users/kazjon/Dropbox/Documents/Research/UNCC/ComputationalCreativity/Datasets/BWReplays/mleece/SimplifiedByRace"
 
-outfile = "parsed_games"
+outfile = "parsed_games_noresearch_noupgrades_nostart"
 dir1 = "Protoss"
 dir2 = "Terran"
 ext = ".atoms"
-ignore = ["Move","Attack","AttackMove"]
+ignore = ["Move","Attack","AttackMove", "Research", "Upgrade"]
 
 repstreams = []
 symbols = {}
@@ -22,7 +22,8 @@ def symbolise(act):
 	return s
 
 for repfile in os.listdir(os.path.join(path,dir1)):
-	repstream = [(0,symbolise("START()"))]
+	#repstream = [(0,symbolise("START()"))]
+	repstream = []
 	fullpath1 = os.path.join(path,dir1,repfile)
 	if os.path.isfile(fullpath1) and os.path.splitext(repfile)[-1] == ext:
 		print repfile
@@ -65,5 +66,5 @@ print symbols
 print actions
 
 
-with open(os.path.join(path,outfile+".pkl"),"wb") as f:
+with open(outfile+".pkl","wb") as f:
 	pickle.dump({"streams":repstreams_cat,"symbols":symbols,"actions":actions},f)
