@@ -2,12 +2,12 @@ import os,pymongo,sys,itertools,cPickle as pickle
 
 path = "/Users/kazjon/Dropbox/Documents/Research/UNCC/ComputationalCreativity/Datasets/BWReplays/mleece/SimplifiedByRace"
 
-outfile = "parsed_games_noresearch_noupgrades_nostart_lim100"
+outfile = "parsed_games_noresearch_noupgrades_lim101"
 dir1 = "Protoss"
 dir2 = "Terran"
 ext = ".atoms"
 ignore = ["Move","Attack","AttackMove", "Research", "Upgrade"]
-steplimit = 100 # Use 0 for no limit
+steplimit = 101 # Use 0 for no limit
 
 repstreams = []
 symbols = {}
@@ -23,8 +23,8 @@ def symbolise(act):
 	return s
 
 for repfile in os.listdir(os.path.join(path,dir1)):
-	#repstream = [(0,symbolise("START()"))]
-	repstream = []
+	repstream = [(0,symbolise("START()"))]
+	#repstream = []
 	fullpath1 = os.path.join(path,dir1,repfile)
 	if os.path.isfile(fullpath1) and os.path.splitext(repfile)[-1] == ext:
 		print repfile

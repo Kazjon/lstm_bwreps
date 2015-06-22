@@ -7,7 +7,7 @@ import numpy as np
 import random, sys
 import cPickle as pickle
 
-subsample = False
+subsample = True
 hardlimit = 100  #use -1 to indicate that all games end with a GAMEOVER() symbol, or an integer n if all games end after n steps.
 
 # helper function to sample an index from a probability array
@@ -84,7 +84,7 @@ for i, sentence in enumerate(sentences):
 
 if subsample:
 	###This code redundantly subsamples each game into length maxlen sequences
-	maxlen = 50
+	maxlen = 21
 	step = 5
 	sentences = []
 	for g in games:
@@ -127,7 +127,7 @@ for iteration in range(1, 10000):
 	print()
 	print('-' * 50)
 	print('Iteration', iteration)
-	model.fit(X, y, batch_size=256, nb_epoch=1)
+	model.fit(X, y, batch_size=128, nb_epoch=1)
 
 	seed_game = np.random.randint(0,len(games))
 	###start_index = random.randint(0, len(text) - maxlen - 1)
