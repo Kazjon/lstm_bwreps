@@ -53,7 +53,7 @@ for i in range(0,len(text)):
 			gamelens.append(len(games[-1]))
 			gamestart = i+1
 	else:
-		if i % hardlimit == 0:
+		if (i+1) % hardlimit == 0:
 			games.append(text[gamestart:i+1])
 			gamelens.append(len(games[-1]))
 			gamestart = i+1
@@ -119,7 +119,7 @@ model.add(Activation('time_distributed_softmax'))
 model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
 
 # train the model, output generated text after each epoch
-for iteration in range(1, 1000):
+for iteration in range(1, 10000):
 	print()
 	print('-' * 50)
 	print('Iteration', iteration)
