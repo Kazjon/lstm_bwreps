@@ -8,6 +8,7 @@ import random, sys
 import cPickle as pickle
 
 subsample = False
+hardlimit = 100  #use -1 to indicate that all games end with a GAMEOVER() symbol, or an integer n if all games end after n steps.
 
 # helper function to sample an index from a probability array
 def sample(a, diversity=0.75):
@@ -46,10 +47,17 @@ gamestart = 0
 gamelens = []
 print("Splitting stream by game...")
 for i in range(0,len(text)):
-	if text[i] == char_indices["GAMEOVER()"]:
-		games.append(text[gamestart:i+1])
-		gamelens.append(len(games[-1]))
-		gamestart = i+1
+	if hardlimit < 0:
+		if text[i] == char_indices["GAMEOVER()"]:
+			games.append(text[gamestart:i+1])
+			gamelens.append(len(games[-1]))
+			gamestart = i+1
+	else:
+		if i % hardlimit == 0:
+			games.append(text[gamestart:i+1])
+			gamelens.append(len(games[-1]))
+			gamestart = i+1
+
 print('#games:', len(games))
 
 ###This code trains on each game as its own sequence, padding with GAMEOVER() characters to equalise game lengths. -- out of memory error.
@@ -76,8 +84,8 @@ for i, sentence in enumerate(sentences):
 
 if subsample:
 	###This code redundantly subsamples each game into length maxlen sequences
-	maxlen = 100
-	step = 10
+	maxlen = 50
+	step = 5
 	sentences = []
 	for g in games:
 		for i in range(0,len(g)-maxlen, step):
@@ -87,6 +95,7 @@ else:
 	sentences = games
 
 print('#sequences:', len(sentences))
+print('maxlen:', maxlen)
 
 X = np.zeros((len(sentences), maxlen, len(chars)))
 y = np.zeros((len(sentences), maxlen, len(chars)))
