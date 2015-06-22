@@ -97,14 +97,18 @@ else:
 print('#sequences:', len(sentences))
 print('maxlen:', maxlen)
 
-X = np.zeros((len(sentences), maxlen, len(chars)))
-y = np.zeros((len(sentences), maxlen, len(chars)))
+X = np.zeros((len(sentences), maxlen-1, len(chars)))
+y = np.zeros((len(sentences), maxlen-1, len(chars)))
 for i, sentence in enumerate(sentences):
-	for t, char in enumerate(sentence):
+	for t, char in enumerate(sentence[:-1]):
 		X[i, t, char] = 1.
 	y[i, :-1, :] = X[i, 1:, :]
-	y[i, maxlen-1,char_indices["GAMEOVER()"]] = 1
-	
+	y[i,-1,sentence[-1]] = 1
+	#[i, maxlen-1,char_indices["GAMEOVER()"]] = 1
+	#print([indices_char[np.nonzero(x)[0][0]] for x in X[i,:,:]])
+	#print([indices_char[np.nonzero(x)[0][0]] for x in y[i,:,:]])
+
+maxlen -= 1 # Currently experimenting with X having all-but-the-last and y having all-but-the-first.
 
 # build the model: 2 stacked LSTM
 print('Build model...')
@@ -143,7 +147,7 @@ for iteration in range(1, 10000):
 		x[0, t, char] = 1.
 	preds = model.predict(x,verbose=1)[0]
 
-	for diversity in [0.4, 0.7, 1.]:
+	for diversity in [0.1, 0.4, 0.7, 1.]:
 		print()
 		print('----- diversity:', diversity)
 		samples = [sample(pred,diversity) for pred in preds]
