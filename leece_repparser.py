@@ -2,7 +2,7 @@ import os,pymongo,sys,itertools,cPickle as pickle
 
 path = "/Users/kazjon/Dropbox/Documents/Research/UNCC/ComputationalCreativity/Datasets/BWReplays/mleece/SimplifiedByRace"
 
-outfile = "parsed_games_noresearch_noupgrades_lim101"
+outfile = "parsed_games_lim101"
 dir1 = "Protoss"
 dir2 = "Terran"
 ext = ".atoms"
@@ -23,8 +23,8 @@ def symbolise(act):
 	return s
 
 for repfile in os.listdir(os.path.join(path,dir1)):
-	repstream = [(0,symbolise("START()"))]
-	#repstream = []
+	#repstream = [(0,symbolise("START()"))]
+	repstream = []
 	fullpath1 = os.path.join(path,dir1,repfile)
 	if os.path.isfile(fullpath1) and os.path.splitext(repfile)[-1] == ext:
 		print repfile
@@ -43,8 +43,10 @@ for repfile in os.listdir(os.path.join(path,dir1)):
 			for l1 in rep1_lines:
 				t1,act1 = l1.split()
 				if not any([ig in act1 for ig in ignore]):
+					act1 = act1.split("(")[1][:-1]
 					while not it2done and int(t2) < int(t1):
 						if not any([ig in act2 for ig in ignore]):
+							act2 = act2.split("(")[1][:-1]
 							act2 = "Opp_" + act2
 							repstream.append((int(t2),symbolise(act2)))
 						try:

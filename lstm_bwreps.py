@@ -7,8 +7,9 @@ import numpy as np
 import random, sys
 import cPickle as pickle
 
-subsample = True
-hardlimit = 100  #use -1 to indicate that all games end with a GAMEOVER() symbol, or an integer n if all games end after n steps.
+subsample = False
+hardlimit = 101  #use -1 to indicate that all games end with a GAMEOVER() symbol, or an integer n if all games end after n steps.
+layers = [512, 512, 512]
 
 # helper function to sample an index from a probability array
 def sample(a, diversity=0.75):
@@ -33,7 +34,7 @@ def sample(a, diversity=0.75):
 	has at least ~100k characters. ~1M is better.
 '''
 
-replays = pickle.load(open("parsed_games_noresearch_noupgrades_nostart_lim100.pkl","rb"))
+replays = pickle.load(open("parsed_games_lim101.pkl","rb"))
 print('corpus length:', len(replays["streams"]))
 
 text = list(zip(*replays["streams"])[1])
@@ -110,24 +111,28 @@ for i, sentence in enumerate(sentences):
 
 maxlen -= 1 # Currently experimenting with X having all-but-the-last and y having all-but-the-first.
 
-# build the model: 2 stacked LSTM
+# build the model: n-stacked LSTM
 print('Build model...')
 model = Sequential()
-model.add(LSTM(len(chars), 512, return_sequences=True))
-model.add(Dropout(0.5))
-model.add(LSTM(512, 512, return_sequences=True))
-model.add(Dropout(0.5))
-model.add(TimeDistributedDense(512, len(chars)))
+for i,n in enumerate(layers):
+	if i==0:
+		model.add(LSTM(len(chars), n, return_sequences=True))
+	else:
+		model.add(LSTM(layers[i-1], layers[i], return_sequences=True))
+	model.add(Dropout(0.5))
+model.add(TimeDistributedDense(layers[-1], len(chars)))
 model.add(Activation('time_distributed_softmax'))
 
+
 model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
+print(model.layers)
 
 # train the model, output generated text after each epoch
 for iteration in range(1, 10000):
 	print()
 	print('-' * 50)
 	print('Iteration', iteration)
-	model.fit(X, y, batch_size=128, nb_epoch=1)
+	model.fit(X, y, batch_size=123, nb_epoch=1)
 
 	seed_game = np.random.randint(0,len(games))
 	###start_index = random.randint(0, len(text) - maxlen - 1)
@@ -154,7 +159,7 @@ for iteration in range(1, 10000):
 		#preds = [np.random.randint(0,len(chars)) for i in range(maxlen)]
 		if char_indices["GAMEOVER()"] in samples:
 			samples = samples[:samples.index(char_indices["GAMEOVER()"])+1]
-		sys.stdout.write("Predicted: "+", ".join([indices_char[p] for p in samples]))
+		sys.stdout.write("Predicted: "+", ".join([indices_char[p].split("(")[1][:-1] for p in samples]))
 		sys.stdout.flush()
 		'''
 		for iteration in range(400):
