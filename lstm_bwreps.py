@@ -159,7 +159,7 @@ for iteration in range(1, 10000):
 		#preds = [np.random.randint(0,len(chars)) for i in range(maxlen)]
 		if char_indices["GAMEOVER()"] in samples:
 			samples = samples[:samples.index(char_indices["GAMEOVER()"])+1]
-		sys.stdout.write("Predicted: "+", ".join([indices_char[p].split("(")[1][:-1] for p in samples]))
+		sys.stdout.write("Predicted: "+", ".join([indices_char[p] for p in samples]))
 		sys.stdout.flush()
 		'''
 		for iteration in range(400):
